@@ -195,7 +195,7 @@ bot.on("message", msg => {
           ids: '875117#osu/1876170'
         }
     ];
-    
+
     msg.delete();
 
     msg.channel.messages.fetch({limit: 50}).then(messages => {
@@ -213,6 +213,7 @@ bot.on("message", msg => {
     }).catch(console.error);
     
 
+    
     msg.channel.messages.fetch(msg.id)
     .then(message => console.log(message.content))
     .catch(console.error);
