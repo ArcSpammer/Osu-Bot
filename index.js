@@ -11,13 +11,33 @@ const osuApi = new osu.Api(Tokens.apiToken, {
 	parseNumeric: false // Parse numeric values into numbers/floats, excluding ids
 });
 
+const Participants = [
+  "BlockerGames",
+  "Flurchus",
+  "Froxic",
+  "jimmy_the_boss",
+  "MrDinando",
+  "raydamick",
+  "Skipiolof",
+  "Straatmeneer",
+  "Timmieturnerrr",
+  "Tychoman",
+  "Vertox991",
+  "Alecazem",
+  "Kaajman",
+  "KyranGe",
+  "Mikachu_",
+  "Hesselaar"
+]
+
 bot.login(Tokens.botToken);
 
-console.log("Logging in...");
+bot.on('ready', msg => {
+  console.log("Logging in...");
+})
 
-bot.on("message", msg => {
-    if (msg.channel.name !== "beatmap-pool") return;
-    //if (msg.author.id !== 253163127494017034) return;
+bot.on("message", async msg => {
+    //if (msg.channel.name !== "test") return;
     if (msg.bot == true) return;
     if (!msg.member.roles.cache.has("843898128855597156")) return;
 
@@ -196,9 +216,69 @@ bot.on("message", msg => {
         }
     ];
 
-    msg.delete();
+    if (msg.author.id === "253163127494017034" && msg.content.startsWith("start ")) {
 
-    msg.channel.messages.fetch({limit: 50}).then(messages => {
+      function startRound(Player1, Player2) {
+        var role = msg.member.guild.roles.cache.find(role => role.name === "In-Tourney");
+        const list = bot.guilds.cache.get("843603850359078943");
+
+        list.members.fetch(Player1).then(mem => {
+          mem.roles.add(role);
+        })
+        list.members.fetch(Player2).then(mem => {
+          mem.roles.add(role);
+        })
+        msg.member.fetch(Player1).then(mem => {
+          mem.roles.add(role);
+        })
+        msg.member.fetch(Player2).then(mem => {
+          mem.roles.add(role);
+        })
+      }
+      game = msg.content.split("start ")[1]
+      console.log(game);
+      
+      if (game === "game 1") {
+        startRound("589743586829008907", "252536303051079680");
+      } else if (game === "game 2") {
+        startRound("399510208616988673", "411597191132741642");
+      } else if (game === "game 3") {
+        startRound("398597444075651072", "692493651653296189");
+      } else if (game === "game 4") {
+        startRound("404616305946132510", "255976796082667520");
+      } else if (game === "game 5") {
+        startRound("314381899810340865", "357467677717168128");
+      } else if (game === "game 6") {
+        startRound("521686496458178560", "371939111986266112");
+      } else if (game === "game 7") {
+        startRound("694429386396663839", "229366222498693131");
+      } else if (game === "game 8") {
+        startRound("212190355309854720", "227526554190741506");
+      };
+    };
+    
+
+    if (msg.author.id === "253163127494017034" && msg.content === "gameEnd") {
+      bot.guilds.fetch("843603850359078943").then(guild => {
+        guild.roles.fetch("845071848776794133").then(role => {
+          role.members.fetch();
+          console.log(role.members.size);
+        })
+      })
+      //var role = (await list).roles.fetch("845071848776794133");
+      //(await role).members.fetch().then(console.log);
+      
+
+      //var role = bot.guild.role.get("845071848776794133");
+      
+      //console.log(role.members.size)
+      //role.members.forEach(mem => {
+      //  console.log(mem);
+      //})
+    };
+
+
+    /*msg.channel.messages.fetch({limit: 50}).then(messages => {
         for (messages of messages.values()) for(const embed of messages.embeds) {
             link = embed.description;
 
@@ -210,14 +290,7 @@ bot.on("message", msg => {
             allMaps.push({beatmap_name, ids});
         }
         console.log(allMaps);
-    }).catch(console.error);
-    
-
-    
-    msg.channel.messages.fetch(msg.id)
-    .then(message => console.log(message.content))
-    .catch(console.error);
-
+    }).catch(console.error);*/
     
     if (msg.content === "Testing...") msg.channel.send("Testing Complete");
 
@@ -269,24 +342,16 @@ bot.on("message", msg => {
         })
     };
 
-    let osu_name = msg.member.displayName.split("#")[0].toString();
-
-    osuApi.getUser({u: osu_name}).then(user => {
-        console.log(user.pp.rank);
-        rankArray = user.pp.rank.split("");
+    const user = await osuApi.getUser({u: msg.member.displayName.split("#")[0].toString()})
+    if (msg.author.id === "253163127494017034") return;
+      rankArray = user.pp.rank.split("");
     
-        if (rankArray.length > 3) {
-            rankArray.splice(rankArray.length - 3, 0, ".");
-        } else if (rankArray.length > 7) {
-            rankArray.splice(rankArray.length - 6, 0, ".");
-            rankArray.splice(rankArray.length - 3, 0, ".");
-        };
-        msg.member.setNickname(osu_name + "#" + rankArray.join(""))
-        console.log(msg.member.displayName);
-    }).catch(() => {
-        
-    })
-
-    
-
+      if (rankArray.length > 3) {
+        rankArray.splice(rankArray.length - 3, 0, ".");
+      } else if (rankArray.length > 7) {
+        rankArray.splice(rankArray.length - 6, 0, ".");
+        rankArray.splice(rankArray.length - 3, 0, ".");
+      };
+      msg.member.setNickname(msg.member.displayName.split("#")[0].toString() + "#" + rankArray.join(""))
+      console.log(msg.member.displayName);
 })
